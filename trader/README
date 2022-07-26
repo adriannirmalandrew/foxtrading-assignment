@@ -1,0 +1,4 @@
+The "trader" application is used to perform trades on the AliceBlue API.
+- Backend is implemented in Express.js
+- Trade information will be stored using MongoDB
+- Frontend is implemented with React.js

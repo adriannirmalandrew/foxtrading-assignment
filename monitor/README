@@ -1,0 +1,3 @@
+The "monitor" application is used to monitor the trades performed using "trader".
+- The application is implemented using Django
+- Gets information from the MongoDB datbase
