@@ -28,7 +28,7 @@ tradeServer.post('/login', async (req, res) => {
 	let encKeyRequest = new Request(baseUrl + 'customer/getAPIEncpkey', {
 		method: 'POST',
 		headers: encKeyRequestHeaders,
-		body: JSON.stringify({"userId": USER_ID}),
+		body: JSON.stringify({'userId': USER_ID}),
 		redirect: 'follow',
 	});
 	//Get encryption key
@@ -53,18 +53,29 @@ tradeServer.post('/login', async (req, res) => {
 	let sessionIdRequestHeaders = new Headers();
 	sessionIdRequestHeaders.append('Content-Type', 'application/json');
 	//Request to get sessionId
-	//TODO
+	let sessionIdRequest = new Request(baseUrl + 'customer/getUserSID', {
+		method: 'POST',
+		headers: sessionIdRequestHeaders,
+		body: JSON.stringify({
+			'userId': USER_ID,
+			'userData': dataStringHash,
+		}),
+		redirect: 'follow',
+	})
 	//Get session ID
+	let sessionIdResponse = await fetch(sessionIdRequest).then(sessResp => {
+		return sessResp.text();
+	});
+	console.log(sessionIdResponse);
+	//Check fields
+	let stat = sessionIdResponse['stat'];
+	let sessionId = sessionIdResponse['sessionID'];
 	//Return session ID
+	res.send({'sessionId': sessionId});
 });
 
 //Logout
 tradeServer.post('/logout', (req, res) => {
-	//TODO
-});
-
-//Buy
-tradeServer.post('/buy', (req, res) => {
 	//TODO
 });
 
