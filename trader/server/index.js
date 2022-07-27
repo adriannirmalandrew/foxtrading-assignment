@@ -6,6 +6,7 @@ The backend for the "trader" application:
 
 const express = require('express');
 const mongodb = require('mongodb');
+const crypto = require('crypto');
 
 //Load environment variables
 require('dotenv').config();
@@ -35,10 +36,26 @@ tradeServer.post('/login', async (req, res) => {
 		return encResp.text();
 	});
 	console.log(encKeyResponse);
-	//SHA-256 (user ID + API key + encryption key)
+	//Check fields
+	let userId = encKeyResponse['userId'];
+	let encKey = encKeyResponse['encKey'];
+	if(userId !== USER_ID) {
+		//Send error response
+		//Return
+	}
+	
+	//SHA-256 hash (user ID + API key + encryption key)
+	let dataString = userId + SECRET_KEY + encKey;
+	let sha256 = crypto.createHash('sha256');
+	sha256.update(dataString, 'utf8');
+	let dataStringHash = sha256.digest('base64');
+	//Header to get sessionId
+	let sessionIdRequestHeaders = new Headers();
+	sessionIdRequestHeaders.append('Content-Type', 'application/json');
+	//Request to get sessionId
+	//TODO
 	//Get session ID
 	//Return session ID
-	res.json(encKeyResponse);
 });
 
 //Logout
