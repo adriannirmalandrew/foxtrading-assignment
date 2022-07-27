@@ -40,8 +40,8 @@ tradeServer.post('/login', async (req, res) => {
 	let userId = encKeyResponse['userId'];
 	let encKey = encKeyResponse['encKey'];
 	if(userId !== USER_ID) {
-		//Send error response
-		//Return
+		res.sendStatus(403);
+		return;
 	}
 	
 	//SHA-256 hash (user ID + API key + encryption key)
@@ -71,13 +71,40 @@ tradeServer.post('/login', async (req, res) => {
 	let stat = sessionIdResponse['stat'];
 	let sessionId = sessionIdResponse['sessionID'];
 	//Return session ID
-	res.send({'sessionId': sessionId});
+	res.cookie('sessionId', sessionId);
+	res.sendStatus(200);
 });
 
 //Logout
-tradeServer.post('/logout', (req, res) => {
-	//TODO
+tradeServer.post('/logout', async (req, res) => {
+	//Get session ID from client
+	let sessionId = req.cookies.sessionId;
+	//Header for logout
+	let logoutHeaders = new Headers();
+	logoutHeaders.append('Authorization', 'Bearer ' + USER_ID + ' ' + sessionId);
+	//Request to logout
+	let logoutRequest = new Request(baseUrl + 'customer/logout', {
+		method: 'POST',
+		headers: logoutHeaders,
+		redirect: 'follow',
+	});
+	//Logout from session
+	let logoutResponse = await fetch(logoutRequest).then(logoutResp => {
+		return logoutResp.text();
+	});
+	console.log(logoutResp);
+	//Check fields
+	let stat = logoutResponse['stat'];
+	if(stat !== 'Ok') {
+		res.sendStatus(403);
+		return;
+	}
+	//Clear session ID from client
+	res.clearCookie('sessionId');
+	res.sendStatus(200);
 });
+
+//TODO: Implement portfolio, trading functions
 
 //Start app
 tradeServer.listen(3000, () => {
