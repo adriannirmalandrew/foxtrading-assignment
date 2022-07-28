@@ -132,6 +132,7 @@ tradeServer.post('/getPositionBook', async(req, res) => {
 	let respStat = positionBookResponse['stat'];
 	if(respStat !== 'Ok') {
 		res.sendStatus(500);
+		return;
 	}
 	//Send response
 	res.json(positionBookResponse);
@@ -142,7 +143,28 @@ tradeServer.post('/getPositionBook', async(req, res) => {
 tradeServer.post('/getHoldings', async(req, res) => {
 	//Get session ID from client
 	let sessionId = req.cookies.sessionId;
-	//TODO
+	//Header for holdings request
+	let portfolioHoldingsHeaders = new Headers();
+	portfolioHoldingsHeaders.append('Authorization', 'Bearer ' + USER_ID + ' ' + sessionId);
+	//Request for portfolio holdings
+	let portfolioHoldingsRequest = new Request(baseUrl + 'positionAndHoldings/holdings', {
+		method: 'GET',
+		headers: portfolioHoldingsHeaders,
+		redirect: 'follow',
+	});
+	//Get portfolio holdings
+	let portfolioHoldingsResponse = await fetch(portfolioHoldingsRequest).then(holdResp => {
+		return holdResp.text();
+	});
+	//Check fields
+	let respStat = portfolioHoldingsResponse['stat'];
+	if(respStat !== 'Ok') {
+		res.sendStatus(500);
+		return;
+	}
+	//Send response
+	res.json(portfolioHoldingsResponse);
+	res.sendStatus(200);
 });
 
 //Get account details
