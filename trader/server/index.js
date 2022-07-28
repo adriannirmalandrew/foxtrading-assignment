@@ -106,6 +106,52 @@ tradeServer.post('/logout', async (req, res) => {
 
 //TODO: Implement portfolio, trading functions
 
+//Get portfolio position book
+tradeServer.post('/getPositionBook', async(req, res) => {
+	//Get session ID from client
+	let sessionId = req.cookies.sessionId;
+	//Header for position book
+	let positionBookHeaders = new Headers();
+	positionBookHeaders.append('Authorization', 'Bearer ' + USER_ID + ' ' + sessionId);
+	positionBookHeaders.append('Content-Type', 'application/json');
+	//Request for position book
+	let positionBookRequest = new Request(baseUrl + 'positionAndHoldings/positionBook', {
+		method: 'POST',
+		headers: positionBookHeaders,
+		body: JSON.stringify({
+			'ret': 'DAY',
+		}),
+		redirect: 'follow',
+	});
+	//Get position book
+	let positionBookResponse = await fetch(positionBookRequest).then(positionResp => {
+		return positionResp.text();
+	});
+	console.log(positionBookResponse);
+	//Check fields
+	let respStat = positionBookResponse['stat'];
+	if(respStat !== 'Ok') {
+		res.sendStatus(500);
+	}
+	//Send response
+	res.json(positionBookResponse);
+	res.sendStatus(200);
+});
+
+//Get portfolio holdings
+tradeServer.post('/getHoldings', async(req, res) => {
+	//Get session ID from client
+	let sessionId = req.cookies.sessionId;
+	//TODO
+});
+
+//Get account details
+tradeServer.post('/getAccountDetails', async(req, res) => {
+	//Get session ID from client
+	let sessionId = req.cookies.sessionId;
+	//TODO
+});
+
 //Start app
 tradeServer.listen(3000, () => {
 	console.log('Started trading server');
